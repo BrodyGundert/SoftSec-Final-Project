@@ -1,0 +1,44 @@
+# GitLab CI for the CISE 330 permission-manager project.
+# Builds, runs the test suite, and exercises the attack demo. The include
+# below wires in GitLab's built-in SAST and Secret Detection (same analyzers
+# used in Lab 2) so the pipeline reports on the C sources too.
+stages:
+  - build
+  - test
+  - security
+
+variables:
+  CFLAGS_EXTRA: ""
+
+build:
+  stage: build
+  image: gcc:13
+  script:
+    - make all
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 hour
+
+unit-tests:
+  stage: test
+  image: gcc:13
+  script:
+    - make test
+
+attack-demo:
+  stage: test
+  image: gcc:13
+  script:
+    - make all
+    - ./demo/attacks.sh
+
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+sast:
+  stage: security
+
+secret_detection:
+  stage: security
