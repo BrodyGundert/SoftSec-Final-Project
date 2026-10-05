@@ -1,25 +1,37 @@
-# GitLab CI for the CISE 330 permission-manager project.
-# Builds, runs the test suite, and exercises the attack demo. The include
-# below wires in GitLab's built-in SAST and Secret Detection (same analyzers
-# used in Lab 2) so the pipeline reports on the C sources too.
+# ---------------------------------------------------------------------------
+# GitLab CI/CD for the CISE 330 permission-manager project.
+#
+# Stages, in order:
+#   build    - compile with hardened WARNING FLAGS (warnings = errors)
+#   test     - run the unit test suite + the attacker-vs-defender demo
+#   docker   - build the container image (proves Docker integration)
+#   security - GitLab's built-in SAST + Secret Detection (as in Lab 2)
+# ---------------------------------------------------------------------------
 stages:
   - build
   - test
+  - docker
   - security
 
+# WARNING FLAGS used across every compile job. Having them here (not just in
+# the Makefile) makes them visible in the pipeline and fails the build on any
+# warning. -Werror turns every warning into an error.
 variables:
-  CFLAGS_EXTRA: ""
+  WARNING_FLAGS: "-Wall -Wextra -Werror -Wshadow -Wconversion -Wformat=2"
 
+# --- build -----------------------------------------------------------------
 build:
   stage: build
   image: gcc:13
   script:
-    - make all
+    - echo "Compiling with warning flags -> $WARNING_FLAGS"
+    - make all CFLAGS="-std=c11 $WARNING_FLAGS -O1 -g -D_POSIX_C_SOURCE=200809L -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE"
   artifacts:
     paths:
       - build/
     expire_in: 1 hour
 
+# --- test ------------------------------------------------------------------
 unit-tests:
   stage: test
   image: gcc:13
@@ -33,6 +45,22 @@ attack-demo:
     - make all
     - ./demo/attacks.sh
 
+# --- docker ----------------------------------------------------------------
+# Builds the image with Docker-in-Docker so the demo can show a green,
+# container-building pipeline.
+docker-build:
+  stage: docker
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker build -t permctl:$CI_COMMIT_SHORT_SHA .
+    - docker run --rm permctl:$CI_COMMIT_SHORT_SHA check eve delete config || true
+    - docker run --rm permctl:$CI_COMMIT_SHORT_SHA demo
+
+# --- security --------------------------------------------------------------
 include:
   - template: Jobs/SAST.gitlab-ci.yml
   - template: Jobs/Secret-Detection.gitlab-ci.yml
