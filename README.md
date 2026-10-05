@@ -21,6 +21,19 @@ make test      # run the test suite
 make attacks   # attacker-vs-defender walkthrough
 ```
 
+## Run in Docker
+
+```sh
+docker build -t permctl .          # compiles + runs tests inside the image
+docker run --rm permctl            # guided demo
+docker run --rm permctl attacks    # attacker-vs-defender walkthrough
+docker run --rm permctl check eve delete config   # single decision
+```
+
+The image is a multi-stage build: a `gcc` stage compiles with the hardened
+flags and runs the test suite, then a slim Debian stage carries only the
+binaries and runs as a non-root user.
+
 ## Layout
 
 | Path                              | What it is                                        |
