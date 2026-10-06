@@ -1,4 +1,4 @@
-# Secure Access Control / Permission Manager — Design
+# Secure Access Control / Permission Manager - Design
 
 CISE 330 Software Security, Final Project (Option #5). Brody Gundert.
 
@@ -6,9 +6,9 @@ The project manages users with roles (`admin`, `user`, `guest`) and answers
 one question safely: *may this role perform this action on this resource?*
 It ships two programs so both perspectives are visible side by side:
 
-- `vulnctl` (`vulnerable/vuln_permissions.c`) — the **attacker's** playground.
+- `vulnctl` (`vulnerable/vuln_permissions.c`) - the **attacker's** playground.
   Four realistic access-control weaknesses.
-- `permctl` (`src/`) — the **defender's** hardened rewrite that closes them.
+- `permctl` (`src/`) - the **defender's** hardened rewrite that closes them.
 
 `demo/attacks.sh` runs each exploit against `vulnctl`, then shows `permctl`
 refusing the same thing. `tests/test_permissions.c` locks the behaviour in.
@@ -27,7 +27,7 @@ memory.
 1. **Deny by default.** The policy table (`POLICY[role][resource]`) lists
    only what is *allowed*; every path that is not an explicit grant returns
    `false`. `ROLE_INVALID` has an all-zero row.
-2. **One choke point.** Every decision — including `assign_role()` — goes
+2. **One choke point.** Every decision - including `assign_role()` - goes
    through `access_check()`. There is no second code path that can disagree
    with it (the vulnerable version had exactly that split-brain bug).
 3. **Validate at the boundary.** Untrusted strings become a `role_t` only via
@@ -41,7 +41,7 @@ memory.
 5. **Tamper detection.** Each record carries a keyed integrity tag over
    `(id, role)`. A record whose tag does not recompute is treated as
    `ROLE_INVALID` and denied. (Demonstration-grade keyed hash, not a real
-   MAC — a production system would use HMAC-SHA256, or keep untrusted code
+   MAC - a production system would use HMAC-SHA256, or keep untrusted code
    away from the record entirely.)
 6. **Fail safe & log.** Malformed actions (zero bits or multiple bits),
    out-of-range resources, NULL actors, and tampered records are all denied,

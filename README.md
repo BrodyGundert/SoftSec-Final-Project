@@ -1,6 +1,6 @@
 # Secure Access Control / Permission Manager
 
-CISE 330 Software Security — final project (Option #5). A small C access-control
+CISE 330 Software Security - final project (Option #5). A small C access-control
 system built to show, side by side, how an attacker escalates privileges and how
 a defender closes each hole.
 
