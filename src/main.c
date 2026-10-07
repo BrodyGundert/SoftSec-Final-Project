@@ -1,16 +1,10 @@
 /*
  * main.c - small command-line driver for the hardened permission manager.
  *
- * Usage:
- *   permctl check <actor-id> <action> <resource>
- *   permctl assign <actor-id> <target-id> <new-role>
- *   permctl demo
- *
  * Seeded users: alice=admin, bob=user, eve=guest.
  * Exit status: 0 = allowed / success, 1 = denied, 2 = usage error.
  */
 #include "permissions.h"
-
 #include <stdio.h>
 #include <string.h>
 
