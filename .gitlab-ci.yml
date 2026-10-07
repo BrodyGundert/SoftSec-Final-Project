@@ -13,13 +13,10 @@ stages:
   - docker
   - security
 
-# WARNING FLAGS used across every compile job. Having them here (not just in
-# the Makefile) makes them visible in the pipeline and fails the build on any
-# warning. -Werror turns every warning into an error.
 variables:
   WARNING_FLAGS: "-Wall -Wextra -Werror -Wshadow -Wconversion -Wformat=2"
 
-# --- build -----------------------------------------------------------------
+# build
 build:
   stage: build
   image: gcc:13
@@ -31,7 +28,7 @@ build:
       - build/
     expire_in: 1 hour
 
-# --- test ------------------------------------------------------------------
+# test
 unit-tests:
   stage: test
   image: gcc:13
@@ -45,9 +42,7 @@ attack-demo:
     - make all
     - ./demo/attacks.sh
 
-# --- docker ----------------------------------------------------------------
-# Builds the image with Docker-in-Docker so the demo can show a green,
-# container-building pipeline.
+# Builds the image with Docker
 docker-build:
   stage: docker
   image: docker:27
@@ -60,7 +55,7 @@ docker-build:
     - docker run --rm permctl:$CI_COMMIT_SHORT_SHA check eve delete config || true
     - docker run --rm permctl:$CI_COMMIT_SHORT_SHA demo
 
-# --- security --------------------------------------------------------------
+# security
 include:
   - template: Jobs/SAST.gitlab-ci.yml
   - template: Jobs/Secret-Detection.gitlab-ci.yml
