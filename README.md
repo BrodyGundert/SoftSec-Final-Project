@@ -4,8 +4,7 @@ CISE 330 Software Security - final project (Option #5). A small C access-control
 system built to show, side by side, how an attacker escalates privileges and how
 a defender closes each hole.
 
-> Portfolio mirror. Coursework is submitted through the university's GitLab; this
-> public GitHub copy is for reference. See `docs/DESIGN.md` for the full writeup.
+> Coursework repository for CISE 330. See `docs/DESIGN.md` for the full writeup.
 
 ## What it does
 
