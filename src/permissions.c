@@ -252,7 +252,7 @@ bool access_check(const user_t *actor, action_t action, resource_t resource)
 {
     const char *who = user_id(actor);
 
-    /* 1. Reject anything that is not a live, sealed record. */
+    /* Reject anything that is not a live, sealed record. */
     if (actor == NULL || !actor->in_use) {
         g_denials++;
         audit("DENY", who, action, resource, "no-such-user");
@@ -264,15 +264,13 @@ bool access_check(const user_t *actor, action_t action, resource_t resource)
         return false;
     }
 
-    /* 2. Bounds-check the resource before indexing the table. */
+    /* Bounds-check the resource before indexing the table. */
     if ((unsigned)resource >= RES_COUNT) {
         g_denials++;
         audit("DENY", who, action, resource, "unknown-resource");
         return false;
     }
 
-    /* 3. Exactly-one-bit action, otherwise someone is trying to smuggle a
-     *    combined mask through (e.g. READ|MANAGE_USERS). */
     unsigned a = (unsigned)action;
     if (a == 0 || (a & (a - 1)) != 0) {
         g_denials++;
@@ -280,7 +278,7 @@ bool access_check(const user_t *actor, action_t action, resource_t resource)
         return false;
     }
 
-    /* 4. Table lookup. Deny unless the bit is explicitly present. */
+    /* Table lookup. Deny unless the bit is explicitly present. */
     bool allowed = (POLICY[actor->role][resource] & a) != 0;
     if (!allowed) {
         g_denials++;
