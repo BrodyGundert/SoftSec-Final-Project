@@ -25,13 +25,18 @@ RUN useradd --create-home --uid 10001 appuser
 WORKDIR /app
 COPY --from=build /app/build/ ./build/
 COPY --from=build /app/demo/attacks.sh ./demo/attacks.sh
+# Normalise line endings (a Windows checkout may carry CRLF) and ensure the
+# script is executable, so it runs regardless of how the repo was cloned.
+RUN sed -i 's/\r$//' /app/demo/attacks.sh && chmod +x /app/demo/attacks.sh
 # Tiny entrypoint: no args -> demo; "attacks" -> walkthrough; else pass to permctl.
+# attacks.sh is invoked through bash explicitly so its shebang is never the
+# thing that has to be found on PATH.
 RUN printf '%s\n' \
     '#!/bin/sh' \
     'set -e' \
     'case "$1" in' \
     '  "")        exec /app/build/permctl demo ;;' \
-    '  attacks)   exec /app/demo/attacks.sh ;;' \
+    '  attacks)   exec bash /app/demo/attacks.sh ;;' \
     '  *)         exec /app/build/permctl "$@" ;;' \
     'esac' > /usr/local/bin/entrypoint.sh \
     && chmod +x /usr/local/bin/entrypoint.sh
