@@ -1,0 +1,7 @@
+# Terraform working files that must never be committed
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars

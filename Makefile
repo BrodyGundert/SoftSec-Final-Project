@@ -7,7 +7,7 @@ LDHARD  := -pie -Wl,-z,relro,-z,now
 BIN := build
 SRC := src/permissions.c
 
-.PHONY: all clean test demo attacks
+.PHONY: all clean test demo attacks fuzz
 
 all: $(BIN)/permctl $(BIN)/vulnctl $(BIN)/test_permissions
 
@@ -37,6 +37,9 @@ demo: $(BIN)/permctl
 
 attacks: all
 	./demo/attacks.sh
+
+fuzz: all
+	./tests/fuzz.sh
 
 clean:
 	rm -rf $(BIN)
